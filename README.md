@@ -26,7 +26,7 @@ This system accepts a financial PDF (e.g. Tesla Q2 2025 report), extracts its te
 | 4 | Missing `python-dotenv` — used in code but not listed | Added `python-dotenv==1.0.1` |
 | 5 | Missing `pypdf` — needed for PDF reading | Added `pypdf==5.1.0` |
 | 6 | Missing `langchain-community` — needed for `PyPDFLoader` | Added `langchain-community==0.3.14` |
-| 7 | Missing `duckduckgo-search` — required for web search tool | Added `duckduckgo-search==6.2.1` |
+| 7 | Missing `duckduckgo-search` — required for web search tool | Added `duckduckgo-search==6.2.1` (listed in requirements.txt; web search is currently disabled in agents/tasks but the package is kept for future re-enablement) |
 | 8 | Missing `groq` — needed for Groq LLM | Added `groq==0.11.0` |
 
 ---
@@ -161,14 +161,15 @@ source venv/bin/activate
 # Step 3 — Upgrade pip
 python -m pip install --upgrade pip
 
-# Step 4 — Install crewai-tools without conflicting sub-dependencies
-# (embedchain inside crewai-tools conflicts with crewai's chromadb version)
-pip install --no-cache-dir crewai-tools==0.47.1 --no-deps
-pip install --no-cache-dir embedchain==0.1.128 --no-deps
-
-# Step 5 — Install everything else
+# Step 4 — Install all dependencies
 pip install --no-cache-dir -r requirements.txt
 ```
+
+> **Note for Windows users:** If you hit `chromadb` or `embedchain` conflict errors during install, run these two commands first, then retry Step 4:
+> ```bash
+> pip install --no-cache-dir crewai-tools==0.47.1 --no-deps
+> pip install --no-cache-dir embedchain==0.1.128 --no-deps
+> ```
 
 ### Add Sample Document
 Download Tesla Q2 2025 financial update:
