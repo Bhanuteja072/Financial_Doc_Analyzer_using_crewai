@@ -48,7 +48,7 @@ financial_analyst = Agent(
     llm=llm,
     max_iter=5,
     max_rpm=5,
-    allow_delegation=True
+    allow_delegation=False
 )
 
 # Creating a document verifier agent
@@ -72,7 +72,7 @@ verifier = Agent(
     llm=llm,
     max_iter=5,
     max_rpm=5,
-    allow_delegation=True
+    allow_delegation=False
 )
 
 # FIX: Rewrote goal and backstory — original was instructing agent to sell products, ignore compliance, and make up connections
