@@ -44,3 +44,5 @@ numpy==1.26.4
 pillow==10.3.0
 requests==2.32.2
 
+
+sqlalchemy==2.0.30
