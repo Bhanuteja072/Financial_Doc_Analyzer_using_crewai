@@ -28,6 +28,7 @@ This system accepts a financial PDF (e.g. Tesla Q2 2025 report), extracts its te
 | 6 | Missing `langchain-community` — needed for `PyPDFLoader` | Added `langchain-community==0.3.14` |
 | 7 | Missing `duckduckgo-search` — required for web search tool | Added `duckduckgo-search==6.2.1` (listed in requirements.txt; web search is currently disabled in agents/tasks but the package is kept for future re-enablement) |
 | 8 | Missing `groq` — needed for Groq LLM | Added `groq==0.11.0` |
+| 9 | Missing `sqlalchemy` — required for SQLite persistence | Added `sqlalchemy==2.0.30` |
 
 ---
 
@@ -54,6 +55,7 @@ This system accepts a financial PDF (e.g. Tesla Q2 2025 report), extracts its te
 | 3 | `tool=[...]` parameter — wrong parameter name | Changed to `tools=[...]` |
 | 4 | `max_iter=1` on all agents — prevents proper reasoning | Changed to `max_iter=5` |
 | 5 | `max_rpm=1` on all agents — extreme throttling | Changed to `max_rpm=5` |
+| 6 | `allow_delegation=True` on verifier and financial_analyst — caused agents to delegate to coworkers instead of doing their own job, wasting tokens and causing rate limit errors | Changed to `allow_delegation=False` |
 
 ### `agents.py` — Inefficient Prompts
 
@@ -126,6 +128,17 @@ PDF text extracted (first 5 pages, max 20,000 chars)
         ↓
 Combined analysis returned as JSON response
 ```
+
+---
+
+## Bonus Feature — Database Integration
+
+Every analysis is automatically saved to a SQLite database.
+Two new endpoints were added:
+- `GET /results` — view all past analyses
+- `GET /results/{id}` — view a specific analysis by ID
+
+This allows users to retrieve previous analyses without re-uploading documents.
 
 ---
 
@@ -265,10 +278,50 @@ Upload a financial PDF and receive AI-powered analysis.
 
 ---
 
+#### `GET /results`
+Return all saved analysis results from SQLite.
+
+**Response:**
+```json
+{
+        "status": "success",
+        "total": 3,
+        "results": [
+                {
+                        "id": 1,
+                        "filename": "TSLA-Q2-2025-Update.pdf",
+                        "query": "What is total revenue in Q2 2025?",
+                        "analysis": "...",
+                        "created_at": "2026-02-27T09:12:00+00:00"
+                }
+        ]
+}
+```
+
+---
+
+#### `GET /results/{result_id}`
+Return a single saved analysis result by ID.
+
+**Response:**
+```json
+{
+        "status": "success",
+        "id": 1,
+        "filename": "TSLA-Q2-2025-Update.pdf",
+        "query": "What is total revenue in Q2 2025?",
+        "analysis": "...",
+        "created_at": "2026-02-27T09:12:00+00:00"
+}
+```
+
+---
+
 ## Project Structure
 ```
 financial-document-analyzer/
 ├── agents.py         # 4 CrewAI agent definitions
+├── database.py       # SQLite models and CRUD helpers
 ├── main.py           # FastAPI server, PDF extraction, crew runner
 ├── README.md         # This file
 ├── requirements.txt  # Python dependencies
@@ -278,6 +331,7 @@ financial-document-analyzer/
 ├── .gitignore        # Excludes .env and venv from git
 ├── data/
 │   └── TSLA-Q2-2025-Update.pdf
+├── financial_analyzer.db  # SQLite database (ignored by git)
 └── outputs/          # Analysis outputs
 ```
 
